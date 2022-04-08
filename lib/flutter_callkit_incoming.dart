@@ -88,6 +88,41 @@ class FlutterCallkitIncoming {
     }
     return CallEvent(event, body);
   }
+
+  /// Get active calls.
+  /// On iOS: return active calls from Callkit.
+  /// On Android: only return last call
+  static Future setOnHold(String uuid, bool isOnHold) async {
+    return await _channel.invokeMethod("setOnHold", <String, dynamic>{'uuid': uuid, 'isOnHold': isOnHold});
+  }
+
+  /// Get active calls.
+  /// On iOS: return active calls from Callkit.
+  /// On Android: only return last call
+  static Future setMutedCall(String uuid, bool isMuted) async {
+    return await _channel.invokeMethod("setMutedCall", <String, dynamic>{'uuid': uuid, 'isMuted': isMuted});
+  }
+
+  /// Get active calls.
+  /// On iOS: return active calls from Callkit.
+  /// On Android: only return last call
+  // static Future setCurrentCallActive() async {
+  //   return await _channel.invokeMethod("setCurrentCallActive");
+  // }
+
+    /// Get active calls.
+  /// On iOS: return active calls from Callkit.
+  /// On Android: only return last call
+  static Future reportOutgoingCall(dynamic params) async {
+    return await _channel.invokeMethod("reportOutgoingCall", params);
+  }
+
+    /// Get active calls.
+  /// On iOS: return active calls from Callkit.
+  /// On Android: only return last call
+  static Future reportOutgoingCallConnected(dynamic params) async {
+    return await _channel.invokeMethod("reportOutgoingCallConnected", params);
+  }
 }
 
 class CallEvent {

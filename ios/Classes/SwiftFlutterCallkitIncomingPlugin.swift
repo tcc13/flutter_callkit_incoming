@@ -115,6 +115,70 @@ public class SwiftFlutterCallkitIncomingPlugin: NSObject, FlutterPlugin, CXProvi
         case "getDevicePushTokenVoIP":
             result(self.getDevicePushTokenVoIP())
             break;
+        case "setOnHold":
+            guard let args = call.arguments else {
+                result("OK")
+                return
+            }
+            if let getArgs = args as? [String: Any], let uuidString = getArgs["uuid"] as? String {
+                guard let call = self.callManager?.callWithUUID(uuid: UUID(uuidString: uuidString)!) else {
+                    result("OK")
+                    return
+                }
+                call.isOnHold = getArgs["isOnHold"] as? Bool ?? false
+                call.isMuted = getArgs["isOnHold"] as? Bool ?? false
+                self.callManager?.setHold(call: call, onHold: getArgs["isOnHold"] as? Bool ?? false)
+                self.sendEvent(SwiftFlutterCallkitIncomingPlugin.ACTION_CALL_TOGGLE_HOLD, [ "id": uuidString, "isOnHold": getArgs["isOnHold"] as? Bool ?? false ])
+            }
+            result("OK")
+            break;
+        case "setMutedCall":
+            guard let args = call.arguments else {
+                result("OK")
+                return
+            }
+            if let getArgs = args as? [String: Any], let uuidString = getArgs["uuid"] as? String {
+                guard let call = self.callManager?.callWithUUID(uuid: UUID(uuidString: uuidString)!) else {
+                    result("OK")
+                    return
+                }
+                call.isMuted = getArgs["isMuted"] as? Bool ?? false
+                self.sendEvent(SwiftFlutterCallkitIncomingPlugin.ACTION_CALL_TOGGLE_MUTE, [ "id": uuidString, "isMuted": getArgs["isMuted"] as? Bool ?? false ])
+            }
+            result("OK")
+            break;
+//        case "setCurrentCallActive":
+//            break;
+        case "reportOutgoingCall":
+            guard let args = call.arguments else {
+                result("OK")
+                return
+            }
+            if let getArgs = args as? [String: Any] {
+                let data = Data(args: getArgs)
+                let call = Call(uuid: UUID(uuidString: data.uuid)!, data: data, isOutGoing: true)
+                self.sharedProvider?.reportOutgoingCall(with: call.uuid, startedConnectingAt: Date())
+                self.outgoingCall = call;
+                self.callManager?.addCall(call)
+                self.sendEvent(SwiftFlutterCallkitIncomingPlugin.ACTION_CALL_START, self.data?.toJSON())
+            }
+            result("OK")
+            break;
+        case "reportOutgoingCallConnected":
+            guard let args = call.arguments else {
+                result("OK")
+                return
+            }
+            if let getArgs = args as? [String: Any] {
+                let data = Data(args: getArgs)
+                let call = Call(uuid: UUID(uuidString: data.uuid)!, data: data, isOutGoing: true)
+                self.sharedProvider?.reportOutgoingCall(with: call.uuid, connectedAt: Date())
+                self.outgoingCall = call;
+                self.callManager?.addCall(call)
+                self.sendEvent(SwiftFlutterCallkitIncomingPlugin.ACTION_CALL_START, self.data?.toJSON())
+            }
+            result("OK")
+            break;
         default:
             result(FlutterMethodNotImplemented)
         }
@@ -150,8 +214,13 @@ public class SwiftFlutterCallkitIncomingPlugin: NSObject, FlutterPlugin, CXProvi
         callUpdate.localizedCallerName = data.nameCaller
         
         initCallkitProvider(data)
-        
-        let uuid = UUID(uuidString: data.uuid)
+        var uuid: UUID?
+    
+        if let uuid2 = UUID(uuidString: data.uuid) {
+            uuid = uuid2
+        } else {
+            uuid = UUID(uuidString: "27b98214-c020-4c17-9ed8-2d0aa7504624")
+        }
         
         configurAudioSession()
         self.sharedProvider?.reportNewIncomingCall(with: uuid!, update: callUpdate) { error in
@@ -341,12 +410,6 @@ public class SwiftFlutterCallkitIncomingPlugin: NSObject, FlutterPlugin, CXProvi
         }
         return mode
     }
-    
-    
-    
-    
-    
-    
     
     public func providerDidReset(_ provider: CXProvider) {
         if(self.callManager == nil){ return }
