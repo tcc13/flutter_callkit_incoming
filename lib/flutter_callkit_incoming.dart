@@ -113,15 +113,15 @@ class FlutterCallkitIncoming {
     /// Get active calls.
   /// On iOS: return active calls from Callkit.
   /// On Android: only return last call
-  static Future reportOutgoingCall(dynamic params) async {
-    return await _channel.invokeMethod("reportOutgoingCall", params);
+  static Future reportOutgoingCall(String uuid) async {
+    return await _channel.invokeMethod("reportOutgoingCall", uuid);
   }
 
     /// Get active calls.
   /// On iOS: return active calls from Callkit.
   /// On Android: only return last call
-  static Future reportOutgoingCallConnected(dynamic params) async {
-    return await _channel.invokeMethod("reportOutgoingCallConnected", params);
+  static Future reportOutgoingCallConnected(String uuid) async {
+    return await _channel.invokeMethod("reportOutgoingCallConnected", uuid);
   }
 }
 

@@ -150,33 +150,33 @@ public class SwiftFlutterCallkitIncomingPlugin: NSObject, FlutterPlugin, CXProvi
 //        case "setCurrentCallActive":
 //            break;
         case "reportOutgoingCall":
-            guard let args = call.arguments else {
+            guard let args = call.arguments as? String else {
                 result("OK")
                 return
             }
-            if let getArgs = args as? [String: Any] {
-                let data = Data(args: getArgs)
-                let call = Call(uuid: UUID(uuidString: data.uuid)!, data: data, isOutGoing: true)
-                self.sharedProvider?.reportOutgoingCall(with: call.uuid, startedConnectingAt: Date())
-                self.outgoingCall = call;
-                self.callManager?.addCall(call)
-                self.sendEvent(SwiftFlutterCallkitIncomingPlugin.ACTION_CALL_START, self.data?.toJSON())
+            guard let call = self.callManager?.callWithUUID(uuid: UUID(uuidString: args)!) else {
+                result("OK")
+                return
             }
+            self.sharedProvider?.reportOutgoingCall(with: call.uuid, startedConnectingAt: Date())
+            self.outgoingCall = call;
+            self.callManager?.addCall(call)
+            self.sendEvent(SwiftFlutterCallkitIncomingPlugin.ACTION_CALL_START, self.data?.toJSON())
             result("OK")
             break;
         case "reportOutgoingCallConnected":
-            guard let args = call.arguments else {
+            guard let args = call.arguments as? String else {
                 result("OK")
                 return
             }
-            if let getArgs = args as? [String: Any] {
-                let data = Data(args: getArgs)
-                let call = Call(uuid: UUID(uuidString: data.uuid)!, data: data, isOutGoing: true)
-                self.sharedProvider?.reportOutgoingCall(with: call.uuid, connectedAt: Date())
-                self.outgoingCall = call;
-                self.callManager?.addCall(call)
-                self.sendEvent(SwiftFlutterCallkitIncomingPlugin.ACTION_CALL_START, self.data?.toJSON())
+            guard let call = self.callManager?.callWithUUID(uuid: UUID(uuidString: args)!) else {
+                result("OK")
+                return
             }
+            self.sharedProvider?.reportOutgoingCall(with: call.uuid, connectedAt: Date())
+            self.outgoingCall = call;
+            self.callManager?.addCall(call)
+            self.sendEvent(SwiftFlutterCallkitIncomingPlugin.ACTION_CALL_START, self.data?.toJSON())
             result("OK")
             break;
         default:
