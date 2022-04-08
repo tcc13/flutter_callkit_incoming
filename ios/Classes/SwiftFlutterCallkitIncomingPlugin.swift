@@ -288,9 +288,17 @@ public class SwiftFlutterCallkitIncomingPlugin: NSObject, FlutterPlugin, CXProvi
     
     func endCallNotExist(_ data: CallData) {
         DispatchQueue.main.asyncAfter(deadline: .now() + .milliseconds(data.duration)) {
-            let call = self.callManager?.callWithUUID(uuid: UUID(uuidString: data.uuid)!)
+            var uuid: UUID?
+        
+            if let uuid2 = UUID(uuidString: data.uuid) {
+                uuid = uuid2
+            } else {
+                uuid = UUID(uuidString: "27b98214-c020-4c17-9ed8-2d0aa7504624")
+            }
+
+            let call = self.callManager?.callWithUUID(uuid: uuid!);
             if (call != nil && self.answerCall == nil && self.outgoingCall == nil) {
-                self.callEndTimeout(data)
+                self.callEndTimeout(data);
             }
         }
     }
