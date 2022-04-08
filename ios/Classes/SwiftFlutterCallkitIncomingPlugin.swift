@@ -210,7 +210,7 @@ public class SwiftFlutterCallkitIncomingPlugin: NSObject, FlutterPlugin, CXProvi
         callUpdate.supportsHolding = data.supportsHolding
         callUpdate.supportsGrouping = data.supportsGrouping
         callUpdate.supportsUngrouping = data.supportsUngrouping
-        callUpdate.hasVideo = data.type > 0 ? true : false
+        callUpdate.hasVideo = data.type
         callUpdate.localizedCallerName = data.nameCaller
         
         initCallkitProvider(data)

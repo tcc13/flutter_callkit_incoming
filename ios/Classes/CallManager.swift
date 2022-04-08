@@ -24,7 +24,7 @@ class CallManager: NSObject {
         let handle = CXHandle(type: self.getHandleType(data.handleType), value: data.getEncryptHandle())
         let uuid = UUID(uuidString: data.uuid)
         let startCallAction = CXStartCallAction(call: uuid!, handle: handle)
-        startCallAction.isVideo = data.type > 0
+        startCallAction.isVideo = data.type
         let callTransaction = CXTransaction()
         callTransaction.addAction(startCallAction)
         //requestCall
@@ -35,7 +35,7 @@ class CallManager: NSObject {
             callUpdate.supportsHolding = data.supportsHolding
             callUpdate.supportsGrouping = data.supportsGrouping
             callUpdate.supportsUngrouping = data.supportsUngrouping
-            callUpdate.hasVideo = data.type > 0 ? true : false
+            callUpdate.hasVideo = data.type
             callUpdate.localizedCallerName = data.nameCaller
             self.sharedProvider?.reportCall(with: uuid!, updated: callUpdate)
         })

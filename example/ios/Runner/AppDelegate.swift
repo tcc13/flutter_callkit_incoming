@@ -34,7 +34,7 @@ import flutter_callkit_incoming
         }
         let nameCaller = handleObj.getDecryptHandle()["nameCaller"] as? String ?? ""
         let handle = handleObj.getDecryptHandle()["handle"] as? String ?? ""
-        let data = flutter_callkit_incoming.Data(id: UUID().uuidString, nameCaller: nameCaller, handle: handle, type: isVideo ? 1 : 0)
+        let data = flutter_callkit_incoming.CallData(id: UUID().uuidString, nameCaller: nameCaller, handle: handle, type: isVideo)
         data.nameCaller = "Johnny"
         SwiftFlutterCallkitIncomingPlugin.sharedInstance?.startCall(data, fromPushKit: true)
         
@@ -65,7 +65,7 @@ import flutter_callkit_incoming
         let handle = payload.dictionaryPayload["handle"] as? String ?? ""
         let isVideo = payload.dictionaryPayload["isVideo"] as? Bool ?? false
         
-        let data = flutter_callkit_incoming.Data(id: id, nameCaller: nameCaller, handle: handle, type: isVideo ? 1 : 0)
+        let data = flutter_callkit_incoming.CallData(id: id, nameCaller: nameCaller, handle: handle, type: isVideo)
         SwiftFlutterCallkitIncomingPlugin.sharedInstance?.showCallkitIncoming(data, fromPushKit: true)
     }
     
