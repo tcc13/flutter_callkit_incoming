@@ -33,7 +33,7 @@ public class SwiftFlutterCallkitIncomingPlugin: NSObject, FlutterPlugin, CXProvi
     private var outgoingCall : Call?
     private var answerCall : Call?
     
-    private var data: Data?
+    private var data: CallData?
     private var isFromPushKit: Bool = false
     private let devicePushTokenVoIP = "DevicePushTokenVoIP"
     
@@ -71,7 +71,7 @@ public class SwiftFlutterCallkitIncomingPlugin: NSObject, FlutterPlugin, CXProvi
                 return
             }
             if let getArgs = args as? [String: Any] {
-                self.data = Data(args: getArgs)
+                self.data = CallData(args: getArgs)
                 showCallkitIncoming(self.data!, fromPushKit: false)
             }
             result("OK")
@@ -85,7 +85,7 @@ public class SwiftFlutterCallkitIncomingPlugin: NSObject, FlutterPlugin, CXProvi
                 return
             }
             if let getArgs = args as? [String: Any] {
-                self.data = Data(args: getArgs)
+                self.data = CallData(args: getArgs)
                 self.startCall(self.data!, fromPushKit: false)
             }
             result("OK")
@@ -99,7 +99,7 @@ public class SwiftFlutterCallkitIncomingPlugin: NSObject, FlutterPlugin, CXProvi
                 self.endCall(self.data!)
             }else{
                 if let getArgs = args as? [String: Any] {
-                    self.data = Data(args: getArgs)
+                    self.data = CallData(args: getArgs)
                     self.endCall(self.data!)
                 }
             }
@@ -193,7 +193,7 @@ public class SwiftFlutterCallkitIncomingPlugin: NSObject, FlutterPlugin, CXProvi
         return UserDefaults.standard.string(forKey: devicePushTokenVoIP) ?? ""
     }
     
-    @objc public func showCallkitIncoming(_ data: Data, fromPushKit: Bool) {
+    @objc public func showCallkitIncoming(_ data: CallData, fromPushKit: Bool) {
         self.isFromPushKit = fromPushKit
         if(fromPushKit){
             self.data = data
@@ -234,7 +234,7 @@ public class SwiftFlutterCallkitIncomingPlugin: NSObject, FlutterPlugin, CXProvi
         }
     }
     
-    @objc public func startCall(_ data: Data, fromPushKit: Bool) {
+    @objc public func startCall(_ data: CallData, fromPushKit: Bool) {
         self.isFromPushKit = fromPushKit
         if(fromPushKit){
             self.data = data
@@ -243,7 +243,7 @@ public class SwiftFlutterCallkitIncomingPlugin: NSObject, FlutterPlugin, CXProvi
         self.callManager?.startCall(data)
     }
     
-    @objc public func endCall(_ data: Data) {
+    @objc public func endCall(_ data: CallData) {
         var call: Call? = nil
         if(self.isFromPushKit){
             call = Call(uuid: UUID(uuidString: self.data!.uuid)!, data: data)
@@ -286,7 +286,7 @@ public class SwiftFlutterCallkitIncomingPlugin: NSObject, FlutterPlugin, CXProvi
     }
     
     
-    func endCallNotExist(_ data: Data) {
+    func endCallNotExist(_ data: CallData) {
         DispatchQueue.main.asyncAfter(deadline: .now() + .milliseconds(data.duration)) {
             let call = self.callManager?.callWithUUID(uuid: UUID(uuidString: data.uuid)!)
             if (call != nil && self.answerCall == nil && self.outgoingCall == nil) {
@@ -297,7 +297,7 @@ public class SwiftFlutterCallkitIncomingPlugin: NSObject, FlutterPlugin, CXProvi
     
     
     
-    func callEndTimeout(_ data: Data) {
+    func callEndTimeout(_ data: CallData) {
         self.saveEndCall(data.uuid, 3)
         sendEvent(SwiftFlutterCallkitIncomingPlugin.ACTION_CALL_TIMEOUT, data.toJSON())
     }
@@ -316,7 +316,7 @@ public class SwiftFlutterCallkitIncomingPlugin: NSObject, FlutterPlugin, CXProvi
         return typeDefault
     }
     
-    func initCallkitProvider(_ data: Data) {
+    func initCallkitProvider(_ data: CallData) {
         if(self.sharedProvider == nil){
             self.sharedProvider = CXProvider(configuration: createConfiguration(data))
             self.sharedProvider?.setDelegate(self, queue: nil)
@@ -324,7 +324,7 @@ public class SwiftFlutterCallkitIncomingPlugin: NSObject, FlutterPlugin, CXProvi
         self.callManager?.setSharedProvider(self.sharedProvider!)
     }
     
-    func createConfiguration(_ data: Data) -> CXProviderConfiguration {
+    func createConfiguration(_ data: CallData) -> CXProviderConfiguration {
         let configuration = CXProviderConfiguration(localizedName: data.appName)
         configuration.supportsVideo = data.supportsVideo
         configuration.maximumCallGroups = data.maximumCallGroups
